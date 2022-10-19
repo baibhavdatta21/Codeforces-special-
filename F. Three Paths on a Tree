@@ -1,0 +1,141 @@
+Approch->
+
+the 2 nodes out of the 3 will always be the node which holds the diameter of the tree, for the other node we run a bfs and try to calculte it.
+
+#include <bits/stdc++.h>
+using namespace std;
+#define fastIO ios_base::sync_with_stdio(false); cin.tie(NULL); cout.tie(NULL);
+#define ll long long
+#define int long long
+#define double long double   
+#define endl "\n"
+#define pb push_back
+ 
+ 
+int gcd(int a , int b)
+{
+    if(b==0) return a;
+    return gcd(b,(a%b));
+}
+int lcm(int a, int b)
+{
+    return ((a*b)/gcd(a,b));
+}
+void dfs1(int i,int par,vector<vector<int>>&adj,int level,int &idx,int &maxi)
+{
+    if(level>=maxi)
+    {
+        maxi=level;
+        idx=i;
+    }
+    for(auto it:adj[i])
+    {
+        if(it!=par)
+            dfs1(it,i,adj,level+1,idx,maxi);
+    }
+}
+ 
+ 
+vector<int>ans;
+void dfs2(int i,int par,int &j,vector<vector<int>>&adj,vector<int>&store)
+{
+    if(i==j)
+    {
+        ans=store;
+    }
+ 
+    for(auto it:adj[i])
+    {
+        if(it!=par)
+        {
+            store.pb(it);
+            dfs2(it,i,j,adj,store);
+            store.pop_back();
+        }
+    }
+}
+ 
+void solver()
+{
+    int n;
+    cin>>n;
+    vector<vector<int>>adj(n+1);
+    for(int i=0;i<n;i++)
+    {
+        int a,b;
+        cin>>a>>b;
+        adj[a].pb(b);
+        adj[b].pb(a);
+    }
+ 
+    set<int>s1;
+    set<int>s2;
+ 
+    int idx=0;
+    int maxi=0;
+ 
+    dfs1(1,-1,adj,0,idx,maxi);
+    int idx2=0;
+    dfs1(idx,-1,adj,0,idx2,maxi);
+ 
+    //cout<<maxi<<endl;
+    if(maxi==n-1)
+    {
+        int ok=0;
+        for(int i=1;i<=3;i++)
+        {
+            if(i!=idx && i!=idx2)
+                ok=i;
+        }
+        cout<<maxi<<endl;
+        cout<<idx<<" "<<idx2<<" "<<ok<<endl;
+        return;
+    }
+    
+    vector<int>store;
+    store.pb(idx);
+    dfs2(idx,-1,idx2,adj,store);
+    queue<int>q;
+    int count=-1;
+    for(auto it:ans)
+    {
+        s1.insert(it);
+        q.push(it);
+    }
+    int a;
+    while(!q.empty())
+    {
+        int sz=q.size();
+        count++;
+        for(int i=0;i<sz;i++)
+        {
+            a=q.front();
+            q.pop();
+            for(auto it:adj[a])
+            {
+                if(s1.find(it)==s1.end() && s2.find(it)==s2.end())
+                {
+                    q.push(it);
+                    s2.insert(it);
+                }
+            }
+        }
+    }
+    cout<<count+maxi<<endl;
+    cout<<idx<<" "<<idx2<<" "<<a<<endl;
+}
+signed main()
+{
+    fastIO;
+#ifndef ONLINE_JUDGE
+        freopen("in.txt","r",stdin);
+        freopen("out.txt","w",stdout);
+#endif 
+    int t=1;
+    //cin>>t;
+    while(t--)
+    {
+        solver();
+    }  
+    return 0;
+}
